@@ -5,11 +5,14 @@
 
 ## 仕組み
 Windowsのセットアップで使うレジストリを変更して任意のコマンドを実行できるようにしてます。
+<br>
 `HKLM\SYSTEM\Setup` キーの `CmdLine`(REG_SZ) の値を任意の実行したいコマンドに、`SetupType`(REG_DWORD) を `2` に、`SystemSetupInProgress`(REG_DWORD) を `1` にすることで実現できます。
 
 ## 使い方
 `BootShell.bat` をダウンロードして管理者で実行して「Y」キーを押すだけです。
+<br>
 これでブート画面でコマンドプロンプトのウィンドウが出てきます。
+<br>
 Windowsに戻りたいときは `win` コマンド、回復環境に行きたいときは `recovery` コマンドが使えます。
 
 <!--
