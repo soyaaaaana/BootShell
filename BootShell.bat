@@ -7,10 +7,23 @@ if %errorlevel% neq 0 (
 goto maincli
 
 :uac
-set "args= -ArgumentList %~1"
+set "args= %~1"
+set "ps_args= -ArgumentList%args%"
 if ["%~1"] equ [""] set args=
-start /B /I /wait powershell start-process '%~0' -Verb runas%args% > nul 2>&1
-exit/b
+if ["%~1"] equ [""] set ps_args=
+setlocal enabledelayedexpansion
+where sudo.exe>nul 2>&1
+if !errorlevel! equ 0 (
+  sudo.exe "%~0"%args%>nul 2>&1
+  if !errorlevel! equ 0 (
+    exit/b
+  )
+  if !errorlevel! equ -2147023673 (
+    exit/b
+  )
+)
+start /b /i /wait powershell start-process '%~0' -Verb runas%ps_args%
+exit /b
 
 :maincli
 echo:
