@@ -28,10 +28,11 @@ set dirname=BootShell\
 set dir=C:\%dirname%
 mkdir %dir% > nul 2>&1
 
-echo @echo off> %dir%rebuild.bat
-echo set path=%%~1>> %dir%rebuild.bat
-echo set drive=%%path:~0,1%%>> %dir%rebuild.bat
-echo if not ^"%%path:~1,2%%^"==^":\^" goto failed>> %dir%rebuild.bat
+echo @echo off> %dir%rebuild.bat>> %dir%rebuild.bat
+echo setlocal enabledelayedexpansion>> %dir%rebuild.bat
+echo set build_path=%%~1>> %dir%rebuild.bat
+echo set drive=%%build_path:~0,1%%>> %dir%rebuild.bat
+echo if not ^"!build_path:~1,2!^"==^":\^" goto failed>> %dir%rebuild.bat
 echo set IsA_Z=FALSE>> %dir%rebuild.bat
 echo for %%%%i in (A B C D E F G H I J K L M N O P Q R S T U V W X Y Z a b c d e f g h i j k l m n o p q r s t u v w x y z) do if [%%drive%%]==[%%%%i] set IsA_Z=TRUE>> %dir%rebuild.bat
 echo if %%IsA_Z%%==FALSE goto failed>> %dir%rebuild.bat
@@ -47,6 +48,7 @@ echo echo reg add HKLM\System\Setup /v CmdLine /t REG_SZ /d "" /f ^^^> nul 2^^^>
 echo echo reg add HKLM\System\Setup /v SystemSetupInProgress /t REG_DWORD /d 0 /f ^^^> nul 2^^^>^^^&^^^1^>^> %%~1%dirname%win.bat>> %dir%rebuild.bat
 echo echo reg add HKLM\System\Setup /v SetupType /t REG_DWORD /d 0 /f ^^^> nul 2^^^>^^^&^^^1^>^> %%~1%dirname%win.bat>> %dir%rebuild.bat
 echo echo reg add HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System /v EnableCursorSuppression /t REG_DWORD /d 1 /f ^^^> nul 2^^^>^^^&^^^1^>^> %%~1%dirname%win.bat>> %dir%rebuild.bat
+echo echo cd /d %SystemDrive%\^>^> %%~1%dirname%win.bat>> %dir%rebuild.bat
 echo echo rd /s /q "%%%%~dp0" ^^^& shutdown /r /t 0 /f ^^^> nul 2^^^>^^^&1 ^^^& ping localhost /n -1 ^^^> nul 2^^^>^^^&^^^1^>^> %%~1%dirname%win.bat>> %dir%rebuild.bat
 
 
@@ -57,6 +59,7 @@ echo echo reg add HKLM\System\Setup /v SystemSetupInProgress /t REG_DWORD /d 0 /
 echo echo reg add HKLM\System\Setup /v SetupType /t REG_DWORD /d 0 /f ^^^> nul 2^^^>^^^&^^^1^>^> %%~1%dirname%recovery.bat>> %dir%rebuild.bat
 echo echo reg add HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System /v EnableCursorSuppression /t REG_DWORD /d 1 /f ^^^> nul 2^^^>^^^&^^^1^>^> %%~1%dirname%recovery.bat>> %dir%rebuild.bat
 echo echo reagentc /boottore ^^^> nul 2^^^>^^^&^^^1^>^> %%~1%dirname%recovery.bat>> %dir%rebuild.bat
+echo echo cd /d %SystemDrive%\^>^> %%~1%dirname%recovery.bat>> %dir%rebuild.bat
 echo echo rd /s /q "%%%%~dp0" ^^^& shutdown /r /t 0 /f ^^^> nul 2^^^>^^^&1 ^^^& ping localhost /n -1 ^^^> nul 2^^^>^^^&^^^1^>^> %%~1%dirname%recovery.bat>> %dir%rebuild.bat
 
 
@@ -69,6 +72,7 @@ echo echo reg add HKLM\SYSTEM_WINDOWS_REPAIR_\Setup /v CmdLine /t REG_SZ /d "" /
 echo echo reg add HKLM\SYSTEM_WINDOWS_REPAIR_\Setup /v SystemSetupInProgress /t REG_DWORD /d 0 /f ^^^> nul 2^^^>^^^&^^^1^>^> %%~1%dirname%repair.bat>> %dir%rebuild.bat
 echo echo reg add HKLM\SYSTEM_WINDOWS_REPAIR_\Setup /v SetupType /t REG_DWORD /d 0 /f ^^^> nul 2^^^>^^^&^^^1^>^> %%~1%dirname%repair.bat>> %dir%rebuild.bat
 echo echo reg add HKLM\SOFTWARE_WINDOWS_REPAIR_\Microsoft\Windows\CurrentVersion\Policies\System /v EnableCursorSuppression /t REG_DWORD /d 1 /f ^^^> nul 2^^^>^^^&^^^1^>^> %%~1%dirname%repair.bat>> %dir%rebuild.bat
+echo echo cd /d %SystemDrive%\^>^> %%~1%dirname%repair.bat>> %dir%rebuild.bat
 echo echo rd /s /q "%%%%~dp0" ^^^& wpeutil reboot ^^^> nul 2^^^>^^^&^^^1^>^> %%~1%dirname%repair.bat>> %dir%rebuild.bat
 echo echo ファイルの再構築が完了しました。>> %dir%rebuild.bat
 
