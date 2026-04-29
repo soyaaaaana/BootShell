@@ -64,7 +64,8 @@ echo echo reg add HKLM\System\Setup /v SystemSetupInProgress /t REG_DWORD /d 0 /
 echo echo reg add HKLM\System\Setup /v SetupType /t REG_DWORD /d 0 /f ^^^> nul 2^^^>^^^&^^^1^>^> %%~1%dirname%logon.bat>> %dir%rebuild.bat
 echo echo reg add HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System /v EnableCursorSuppression /t REG_DWORD /d 1 /f ^^^> nul 2^^^>^^^&^^^1^>^> %%~1%dirname%logon.bat>> %dir%rebuild.bat
 echo echo echo サービスを開始しています. . . ^>^> %%~1%dirname%logon.bat>> %dir%rebuild.bat
-echo echo powershell "$services = Get-Service | Where-Object { $_.StartType -eq 'Automatic' -and $_.Status -eq 'Stopped' }; $code = { param($name); sc.exe start $name | Out-Null }; $jobs = foreach ($s in $services) { $powershell = [PowerShell]::Create().AddScript($code).AddArgument($s.Name); [PSCustomObject]@{ Instance = $powershell; Handle = $powershell.BeginInvoke() } }; foreach ($job in $jobs) { $job.Instance.EndInvoke($job.Handle); $job.Instance.Dispose() }" ^^^> nul 2^^^>^^^&^^^1^>^> %%~1%dirname%logon.bat>> %dir%rebuild.bat
+@REM echo echo powershell "$services = Get-Service | Where-Object { $_.StartType -eq 'Automatic' -and $_.Status -eq 'Stopped' }; $code = { param($name); sc.exe start $name | Out-Null }; $jobs = foreach ($s in $services) { $powershell = [PowerShell]::Create().AddScript($code).AddArgument($s.Name); [PSCustomObject]@{ Instance = $powershell; Handle = $powershell.BeginInvoke() } }; foreach ($job in $jobs) { $job.Instance.EndInvoke($job.Handle); $job.Instance.Dispose() }" ^^^> nul 2^^^>^^^&^^^1^>^> %%~1%dirname%logon.bat>> %dir%rebuild.bat
+echo echo powershell "Get-WmiObject -Query \"SELECT * FROM Win32_Service WHERE StartMode = 'Auto' AND State = 'Stopped'\" | ForEach-Object { $_.StartService() }" ^^^> nul 2^^^>^^^&^^^1^>^> %%~1%dirname%logon.bat>> %dir%rebuild.bat
 echo echo cd /d %SystemDrive%\^>^> %%~1%dirname%logon.bat>> %dir%rebuild.bat
 echo echo rd /s /q "%%%%~dp0" ^^^& exit^>^> %%~1%dirname%logon.bat>> %dir%rebuild.bat
 
@@ -111,11 +112,11 @@ echo call %dir%rebuild.bat C:\ ^> nul 2^>^&^1>> %dir%cmdline.bat
 echo cls>> %dir%cmdline.bat
 echo set "PATH=%dir%;%%PATH%%">> %dir%cmdline.bat
 echo title BootShell>> %dir%cmdline.bat
-echo echo コマンド "win" を実行して通常のWindowsを起動します。32bit版OSの場合、"win.bat" を実行してください。>> %dir%cmdline.bat
-echo echo コマンド "recovery" を実行して回復環境を起動します。>> %dir%cmdline.bat
+echo echo コマンド "win" を実行すると通常のWindowsを起動します。32bit版OSの場合、"win.bat" を実行してください。>> %dir%cmdline.bat
+echo echo コマンド "recovery" を実行すると回復環境を起動します。>> %dir%cmdline.bat
+echo echo コマンド "logon" を実行すると再起動せずにWindowsを通常起動できます（実験的な機能）>> %dir%cmdline.bat
 echo echo このツールで問題が発生した場合、回復環境でこのシステムのドライブの直下にある "BootShell" ディレクトリの "repair.bat" を実行することで解決する場合があります。>> %dir%cmdline.bat
-echo echo ファイルが破損したなどの理由で "repair.bat" を正常に実行できない場合、回復環境でこのシステムのドライブの直下にある "BootShell" ディレクトリの "rebuild.bat" に引数として該当のWindowsのドライブ(C:\ や D:\ など)を付け加えて実行することで解決する場合があります。>> %dir%cmdline.bat
-echo echo コマンド "logon" を使って再起動せずにWindowsを通常起動できます（実験的な機能）>> %dir%cmdline.bat
+echo echo ファイルが破損したなどの理由で "repair.bat" を正常に実行できない場合、回復環境でこのシステムのドライブの直下にある "BootShell" ディレクトリの "rebuild.bat" を、引数に該当のWindowsのドライブ(C:\ や D:\ など)を付け加えて実行することで解決する場合があります。>> %dir%cmdline.bat
 
 
 reg add HKLM\SYSTEM\Setup /v CmdLine /t REG_SZ /d "cmd.exe /k %dir%cmdline.bat" /f > nul 2>&1
