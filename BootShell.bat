@@ -32,7 +32,8 @@ echo:==============================
 echo:
 if "%~1" equ "/y" goto main
 if "%~1" equ "/Y" goto main
-choice /n /m "ブート画面でコマンド プロンプトを起動しますか? Y=Yes N=No"
+echo ブート画面でコマンド プロンプトを起動しますか?
+choice /n /m "[Y/N]:"
 if %errorlevel% equ 2 echo この操作はユーザーによって取り消されました。& pause & exit/b
 
 :main
@@ -41,7 +42,7 @@ set dirname=BootShell\
 set dir=C:\%dirname%
 mkdir %dir% > nul 2>&1
 
-echo @echo off> %dir%rebuild.bat>> %dir%rebuild.bat
+echo @echo off> %dir%rebuild.bat> %dir%rebuild.bat
 echo setlocal enabledelayedexpansion>> %dir%rebuild.bat
 echo set build_path=%%~1>> %dir%rebuild.bat
 echo set drive=%%build_path:~0,1%%>> %dir%rebuild.bat
@@ -55,6 +56,19 @@ echo echo ファイルの再構築を実行できませんでした。ドライブ名が正しくありません。
 echo exit/b>> %dir%rebuild.bat
 echo :main>> %dir%rebuild.bat
 echo echo ファイルを再構築しています. . . >> %dir%rebuild.bat
+
+
+echo echo @echo off^> %%~1%dirname%logon.bat>> %dir%rebuild.bat
+echo echo echo Windowsの起動準備をしています. . . ^>^> %%~1%dirname%logon.bat>> %dir%rebuild.bat
+echo echo reg add HKLM\System\Setup /v SystemSetupInProgress /t REG_DWORD /d 0 /f ^^^> nul 2^^^>^^^&^^^1^>^> %%~1%dirname%logon.bat>> %dir%rebuild.bat
+echo echo reg add HKLM\System\Setup /v SetupType /t REG_DWORD /d 0 /f ^^^> nul 2^^^>^^^&^^^1^>^> %%~1%dirname%logon.bat>> %dir%rebuild.bat
+echo echo reg add HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System /v EnableCursorSuppression /t REG_DWORD /d 1 /f ^^^> nul 2^^^>^^^&^^^1^>^> %%~1%dirname%logon.bat>> %dir%rebuild.bat
+echo echo echo サービスを開始しています. . . ^>^> %%~1%dirname%logon.bat>> %dir%rebuild.bat
+echo echo powershell "$services = Get-Service | Where-Object { $_.StartType -eq 'Automatic' -and $_.Status -eq 'Stopped' }; $code = { param($name); sc.exe start $name | Out-Null }; $jobs = foreach ($s in $services) { $powershell = [PowerShell]::Create().AddScript($code).AddArgument($s.Name); [PSCustomObject]@{ Instance = $powershell; Handle = $powershell.BeginInvoke() } }; foreach ($job in $jobs) { $job.Instance.EndInvoke($job.Handle); $job.Instance.Dispose() }" ^^^> nul 2^^^>^^^&^^^1^>^> %%~1%dirname%logon.bat>> %dir%rebuild.bat
+echo echo cd /d %SystemDrive%\^>^> %%~1%dirname%logon.bat>> %dir%rebuild.bat
+echo echo rd /s /q "%%%%~dp0" ^^^& exit^>^> %%~1%dirname%logon.bat>> %dir%rebuild.bat
+
+
 echo echo @echo off^> %%~1%dirname%win.bat>> %dir%rebuild.bat
 echo echo echo Windowsの起動準備をしています. . . ^>^> %%~1%dirname%win.bat>> %dir%rebuild.bat
 echo echo reg add HKLM\System\Setup /v CmdLine /t REG_SZ /d "" /f ^^^> nul 2^^^>^^^&^^^1^>^> %%~1%dirname%win.bat>> %dir%rebuild.bat
@@ -93,7 +107,7 @@ echo echo ファイルの再構築が完了しました。>> %dir%rebuild.bat
 echo @echo off> %dir%cmdline.bat
 echo reg add HKLM\SYSTEM\Setup /v SetupType /t REG_DWORD /d 2 /f ^> nul 2^>^&^1>> %dir%cmdline.bat
 echo net start ^> nul 2^>^&^1>> %dir%cmdline.bat
-echo start/b /wait cmd /c %dir%rebuild.bat C:\>> %dir%cmdline.bat
+echo call %dir%rebuild.bat C:\ ^> nul 2^>^&^1>> %dir%cmdline.bat
 echo cls>> %dir%cmdline.bat
 echo set "PATH=%dir%;%%PATH%%">> %dir%cmdline.bat
 echo title BootShell>> %dir%cmdline.bat
@@ -101,6 +115,7 @@ echo echo コマンド "win" を実行して通常のWindowsを起動します。32bit版OSの場合、"
 echo echo コマンド "recovery" を実行して回復環境を起動します。>> %dir%cmdline.bat
 echo echo このツールで問題が発生した場合、回復環境でこのシステムのドライブの直下にある "BootShell" ディレクトリの "repair.bat" を実行することで解決する場合があります。>> %dir%cmdline.bat
 echo echo ファイルが破損したなどの理由で "repair.bat" を正常に実行できない場合、回復環境でこのシステムのドライブの直下にある "BootShell" ディレクトリの "rebuild.bat" に引数として該当のWindowsのドライブ(C:\ や D:\ など)を付け加えて実行することで解決する場合があります。>> %dir%cmdline.bat
+echo echo コマンド "logon" を使って再起動せずにWindowsを通常起動できます（実験的な機能）>> %dir%cmdline.bat
 
 
 reg add HKLM\SYSTEM\Setup /v CmdLine /t REG_SZ /d "cmd.exe /k %dir%cmdline.bat" /f > nul 2>&1
